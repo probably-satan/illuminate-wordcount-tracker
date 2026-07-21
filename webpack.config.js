@@ -52,6 +52,22 @@ module.exports = async (env, options) => {
     },
     plugins: [
       new HtmlWebpackPlugin({
+        filename: "index.html",
+        inject: false,
+        templateContent: () => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="refresh" content="0; url=taskpane.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Illuminate - WordCount Tracker</title>
+</head>
+<body>
+  <p>Redirecting to <a href="taskpane.html">taskpane.html</a>...</p>
+</body>
+</html>`,
+      }),
+      new HtmlWebpackPlugin({
         filename: "taskpane.html",
         template: "./src/taskpane/taskpane.html",
         chunks: ["polyfill", "taskpane"],

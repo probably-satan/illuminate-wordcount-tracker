@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Illuminate - WordCount Tracker</title>
+
+    <!-- Office JavaScript API -->
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+
+    <link href="taskpane.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+    <section id="sideload-msg" class="empty-state">
+        <h2>Sideload this add-in to Word to begin tracking.</h2>
+    </section>
+    <main id="app-body" class="app" style="display: none;">
+        <header class="app-header">
+            <h1>Illuminate - WordCount Tracker</h1>
+            <p>Track time spent plus words added and deleted in this writing session.</p>
+        </header>
+
+        <section class="stats-grid" aria-label="Session statistics">
+            <article class="stat-card">
+                <p class="label">Elapsed Time</p>
+                <p id="elapsed-time" class="value">00:00:00</p>
+            </article>
+            <article class="stat-card">
+                <p class="label">Words Added</p>
+                <p id="words-added" class="value positive">0</p>
+            </article>
+            <article class="stat-card">
+                <p class="label">Words Deleted</p>
+                <p id="words-deleted" class="value negative">0</p>
+            </article>
+        </section>
+
+        <section class="actions">
+            <button id="start-session" type="button">Start Session</button>
+            <button id="stop-session" type="button" disabled>Stop Session</button>
+            <button id="reset-session" type="button">Reset</button>
+            <button id="save-now" type="button">Save Now</button>
+            <button id="toggle-stats" type="button">Show Productivity Stats</button>
+            <button id="toggle-lifetime" type="button">Show Lifetime Stats</button>
+        </section>
+
+        <section id="productivity-panel" class="productivity-panel" style="display: none;">
+            <h2>Productivity Stats (Current Document)</h2>
+
+            <div class="mini-stats-grid">
+                <article class="mini-stat-card">
+                    <p class="label">Session Net Words</p>
+                    <p id="session-net-words" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Session Words / Min</p>
+                    <p id="session-wpm" class="mini-value">0.0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Weekly Net Words</p>
+                    <p id="weekly-net-words" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Weekly Added</p>
+                    <p id="weekly-added" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Weekly Deleted</p>
+                    <p id="weekly-deleted" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Lifetime Net Words</p>
+                    <p id="lifetime-net-words" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Active Days</p>
+                    <p id="active-days" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Avg Daily Net</p>
+                    <p id="avg-daily-net" class="mini-value">0.0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Best Day</p>
+                    <p id="best-day" class="mini-value mini-value-small">-</p>
+                </article>
+            </div>
+
+            <h3>Daily Totals By Date</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Added</th>
+                            <th>Deleted</th>
+                            <th>Net</th>
+                            <th>Minutes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daily-stats-rows">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="lifetime-panel" class="productivity-panel" style="display: none;">
+            <h2>Lifetime Stats (Current Document)</h2>
+
+            <div class="mini-stats-grid">
+                <article class="mini-stat-card">
+                    <p class="label">Lifetime Added</p>
+                    <p id="lifetime-added" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Lifetime Deleted</p>
+                    <p id="lifetime-deleted" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Lifetime Net</p>
+                    <p id="lifetime-net" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Lifetime Minutes</p>
+                    <p id="lifetime-minutes" class="mini-value">0.0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Total Sessions</p>
+                    <p id="lifetime-sessions" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Avg Net / Session</p>
+                    <p id="avg-net-session" class="mini-value">0.0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Current Streak</p>
+                    <p id="current-streak" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Longest Streak</p>
+                    <p id="longest-streak" class="mini-value">0</p>
+                </article>
+                <article class="mini-stat-card">
+                    <p class="label">Best Week Net</p>
+                    <p id="best-week" class="mini-value mini-value-small">-</p>
+                </article>
+            </div>
+
+            <h3>Weekly Totals</h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Week Of</th>
+                            <th>Added</th>
+                            <th>Deleted</th>
+                            <th>Net</th>
+                            <th>Minutes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="weekly-stats-rows">
+                    </tbody>
+                </table>
+            </div>
+
+            <button id="reset-lifetime" type="button" class="danger-action">Reset Lifetime</button>
+        </section>
+
+        <p id="status" class="status">Ready to start.</p>
+        <p id="save-state" class="status">All changes saved</p>
+        <p id="last-saved" class="status">Last saved: Never</p>
+
+        <section id="confirm-overlay" class="confirm-overlay" style="display: none;" aria-live="polite">
+            <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+                <h3 id="confirm-title">Confirm Action</h3>
+                <p id="confirm-message">Are you sure?</p>
+                <div class="confirm-actions">
+                    <button id="confirm-cancel" type="button">Cancel</button>
+                    <button id="confirm-ok" type="button" class="danger-action">Confirm</button>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+
+</html>
